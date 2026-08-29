@@ -8,8 +8,6 @@
 
 use controlplane_core::error::InferenceError;
 
-
-
 /// Uniform interface over a real ONNX session and the weightless stub.
 /// Every gate depends on this trait, never on `ort` directly.
 #[async_trait::async_trait]

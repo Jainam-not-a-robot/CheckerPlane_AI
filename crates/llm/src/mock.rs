@@ -57,10 +57,10 @@ impl LlmBackend for MockLlm {
             let mean = self.config.latency_mean_ms as f32;
             let stddev = self.config.latency_stddev_ms as f32;
             let sampled_ms = (mean + z0 * stddev).max(10.0) as u64;
-            
+
             // Check if hallucination should be injected based on rate
             let is_hallucination = rng.gen::<f32>() < self.config.hallucination_rate;
-            
+
             (sampled_ms, is_hallucination)
         };
 

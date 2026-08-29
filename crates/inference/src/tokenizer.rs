@@ -131,7 +131,11 @@ impl SharedTokenizer {
     ///
     /// # Errors
     /// Returns `InferenceError::TokenizerError` if encoding or decoding fails.
-    pub fn sliding_window_truncate(&self, text: &str, max_tokens: usize) -> Result<String, InferenceError> {
+    pub fn sliding_window_truncate(
+        &self,
+        text: &str,
+        max_tokens: usize,
+    ) -> Result<String, InferenceError> {
         let encoding =
             self.tokenizer
                 .encode(text, false)

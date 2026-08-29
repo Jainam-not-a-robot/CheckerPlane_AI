@@ -133,12 +133,13 @@ impl OnnxBackend {
                 actual: "none".to_string(),
             })?;
 
-        let (out_shape, raw_data) = logits_val.try_extract_tensor::<f32>().map_err(|err| {
-            InferenceError::OnnxError {
-                model: model_id.to_string(),
-                message: format!("failed to extract logits: {err}"),
-            }
-        })?;
+        let (out_shape, raw_data) =
+            logits_val
+                .try_extract_tensor::<f32>()
+                .map_err(|err| InferenceError::OnnxError {
+                    model: model_id.to_string(),
+                    message: format!("failed to extract logits: {err}"),
+                })?;
 
         let num_classes = *out_shape.last().unwrap_or(&0) as usize;
         if num_classes == 0 || raw_data.is_empty() {

@@ -11,8 +11,8 @@ use controlplane_core::context::{GateContext, RequestContext};
 use controlplane_core::error::PipelineError;
 use controlplane_core::verdict::{Decision, GateId, GateOutcome, Stage};
 use controlplane_gates::{
-    CoherenceGate, DynGate, Gate, GateExecutor, GroundingGate, IntentGate,
-    PiiGate, PrefilterGate, ToxicityGate, RelevanceGate,
+    CoherenceGate, DynGate, Gate, GateExecutor, GroundingGate, IntentGate, PiiGate, PrefilterGate,
+    RelevanceGate, ToxicityGate,
 };
 use controlplane_inference::ModelRegistry;
 use controlplane_llm::{GeminiClient, LlmBackend, MockLlm};
@@ -89,9 +89,7 @@ impl Pipeline {
         }
 
         if config.gates.pii.enabled {
-            input_gates.push(Arc::new(PiiGate::new(
-                config.gates.pii.clone(),
-            )));
+            input_gates.push(Arc::new(PiiGate::new(config.gates.pii.clone())));
         }
 
         if config.gates.toxicity.enabled {
@@ -123,21 +121,29 @@ impl Pipeline {
         // WHY: The cross_encoder pool serves two gates (grounding and relevance).
         // By resolving the same model ID, both gates receive a clone of the same `Arc<dyn ModelBackend>`.
         // Duplicating the pool would double resident memory for zero benefit.
-        let cross_encoder = registry
-            .get("cross_encoder")
-            .unwrap_or_else(|| Arc::new(controlplane_inference::StubBackend::new("cross_encoder", 3)));
+        let cross_encoder = registry.get("cross_encoder").unwrap_or_else(|| {
+            Arc::new(controlplane_inference::StubBackend::new("cross_encoder", 3))
+        });
 
         if config.gates.grounding.enabled {
             match GroundingGate::new(config.gates.grounding.clone(), Arc::clone(&cross_encoder)) {
                 Ok(gate) => output_gates.push(Arc::new(gate)),
-                Err(err) => return Err(PipelineError::Internal(format!("GroundingGate initialization failed: {err}"))),
+                Err(err) => {
+                    return Err(PipelineError::Internal(format!(
+                        "GroundingGate initialization failed: {err}"
+                    )))
+                }
             }
         }
 
         if config.gates.relevance.enabled {
             match RelevanceGate::new(config.gates.relevance.clone(), Arc::clone(&cross_encoder)) {
                 Ok(gate) => output_gates.push(Arc::new(gate)),
-                Err(err) => return Err(PipelineError::Internal(format!("RelevanceGate initialization failed: {err}"))),
+                Err(err) => {
+                    return Err(PipelineError::Internal(format!(
+                        "RelevanceGate initialization failed: {err}"
+                    )))
+                }
             }
         }
 

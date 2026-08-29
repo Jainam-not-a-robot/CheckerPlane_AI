@@ -75,15 +75,15 @@ impl Gate for RelevanceGate {
     async fn evaluate(&self, ctx: &GateContext) -> Result<GateOutcome, GateError> {
         let start = Instant::now();
         let response = ctx.response.unwrap_or("");
-        
+
         let premise_raw = ctx.query;
-        // WHY: For relevance, the premise is the raw user query. 
+        // WHY: For relevance, the premise is the raw user query.
         // We use sliding window truncation to cap it, ensuring the response (hypothesis) isn't dropped.
         let premise_trunc = self
             .backend
             .sliding_window_truncate(premise_raw, self.config.max_premise_tokens)
             .unwrap_or_else(|_| premise_raw.to_string());
-            
+
         let premise = &premise_trunc;
 
         let probs = self

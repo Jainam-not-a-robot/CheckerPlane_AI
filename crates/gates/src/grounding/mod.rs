@@ -80,7 +80,7 @@ impl Gate for GroundingGate {
 
         // If history summary is available, use it as premise; otherwise fall back to user query
         let premise_raw = ctx.request.history_summary.as_deref().unwrap_or(query);
-        
+
         // WHY: We need sliding-window truncation on the premise to avoid eating the response (hypothesis)
         // when concatenating. By capping the premise on the way in, we keep the most recent context
         // and ensure the response stays intact.
@@ -88,7 +88,7 @@ impl Gate for GroundingGate {
             .backend
             .sliding_window_truncate(premise_raw, self.config.max_premise_tokens)
             .unwrap_or_else(|_| premise_raw.to_string());
-        
+
         let premise = &premise_trunc;
 
         let probs = self
