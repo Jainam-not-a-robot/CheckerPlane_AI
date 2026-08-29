@@ -77,7 +77,7 @@ impl Gate for ToxicityGate {
         Ok(GateOutcome {
             gate: GateId::Toxicity,
             verdict,
-            score: p_toxic,
+            score: Some(p_toxic),
             threshold: self.config.threshold,
             detail: serde_json::json!({
                 "clean_prob": p_clean,

@@ -78,7 +78,7 @@ impl Gate for IntentGate {
         Ok(GateOutcome {
             gate: GateId::Intent,
             verdict,
-            score: p_attack,
+            score: Some(p_attack),
             threshold: self.config.threshold,
             detail: serde_json::json!({
                 "benign_prob": p_benign,

@@ -141,7 +141,7 @@ impl GateExecutor {
                                 FailurePolicy::Open => GateOutcome {
                                     gate: gate_id,
                                     verdict: Verdict::Pass,
-                                    score: 0.0,
+                                    score: None,
                                     threshold: 0.0,
                                     detail: serde_json::json!({ "degraded_reason": "timeout_fail_open" }),
                                     latency: elapsed,
@@ -155,7 +155,7 @@ impl GateExecutor {
                                             timeout_ms: gate.timeout().as_millis() as u64,
                                         },
                                     },
-                                    score: 1.0,
+                                    score: None,
                                     threshold: 0.0,
                                     detail: serde_json::json!({ "degraded_reason": "timeout_fail_closed" }),
                                     latency: elapsed,
@@ -178,7 +178,7 @@ impl GateExecutor {
                                 FailurePolicy::Open => GateOutcome {
                                     gate: gate_id,
                                     verdict: Verdict::Pass,
-                                    score: 0.0,
+                                    score: None,
                                     threshold: 0.0,
                                     detail: serde_json::json!({
                                         "degraded_reason": "error_fail_open",
@@ -195,7 +195,7 @@ impl GateExecutor {
                                             message: gate_err.to_string(),
                                         },
                                     },
-                                    score: 1.0,
+                                    score: None,
                                     threshold: 0.0,
                                     detail: serde_json::json!({
                                         "degraded_reason": "error_fail_closed",

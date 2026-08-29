@@ -72,7 +72,7 @@ impl Gate for CoherenceGate {
             return Ok(GateOutcome {
                 gate: GateId::Coherence,
                 verdict: Verdict::Pass,
-                score: 0.0,
+                score: Some(0.0),
                 threshold: 1.0 - self.config.strictness,
                 detail: serde_json::json!({
                     "bypassed": true,
@@ -89,7 +89,7 @@ impl Gate for CoherenceGate {
             return Ok(GateOutcome {
                 gate: GateId::Coherence,
                 verdict: Verdict::Pass,
-                score: 0.0,
+                score: Some(0.0),
                 threshold: 1.0 - self.config.strictness,
                 detail: serde_json::json!({
                     "bypassed": true,
@@ -138,7 +138,7 @@ impl Gate for CoherenceGate {
         Ok(GateOutcome {
             gate: GateId::Coherence,
             verdict,
-            score: risk_score,
+            score: Some(risk_score),
             threshold: effective_threshold,
             detail: serde_json::json!({
                 "clean_prob": p_clean,

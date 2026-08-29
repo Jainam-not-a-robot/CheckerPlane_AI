@@ -126,7 +126,7 @@ impl Gate for GroundingGate {
         Ok(GateOutcome {
             gate: GateId::Grounding,
             verdict,
-            score,
+            score: Some(score),
             threshold: self.config.threshold,
             detail: serde_json::json!({
                 "contradiction_prob": p_contra,

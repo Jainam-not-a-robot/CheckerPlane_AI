@@ -113,15 +113,33 @@ impl OnnxBackend {
                 message: format!("failed to create attention_mask tensor: {err}"),
             })?;
 
-        let outputs = session
-            .run(ort::inputs![
+        let has_token_type_ids = session
+            .inputs()
+            .iter()
+            .any(|input| input.name() == "token_type_ids");
+
+        let outputs = if has_token_type_ids {
+            let token_type_ids_tensor = Tensor::from_array((shape, encoded.token_type_ids.clone()))
+                .map_err(|err| InferenceError::OnnxError {
+                    model: model_id.to_string(),
+                    message: format!("failed to create token_type_ids tensor: {err}"),
+                })?;
+
+            session.run(ort::inputs![
+                "input_ids" => input_ids_tensor,
+                "attention_mask" => attention_mask_tensor,
+                "token_type_ids" => token_type_ids_tensor
+            ])
+        } else {
+            session.run(ort::inputs![
                 "input_ids" => input_ids_tensor,
                 "attention_mask" => attention_mask_tensor
             ])
-            .map_err(|err| InferenceError::OnnxError {
-                model: model_id.to_string(),
-                message: format!("session run failed: {err}"),
-            })?;
+        }
+        .map_err(|err| InferenceError::OnnxError {
+            model: model_id.to_string(),
+            message: format!("session run failed: {err}"),
+        })?;
 
         // Extract logits tensor: shape should be [1, num_classes]
         let logits_val = outputs

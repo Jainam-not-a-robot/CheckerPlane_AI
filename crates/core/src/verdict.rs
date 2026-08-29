@@ -193,7 +193,8 @@ pub struct GateOutcome {
     pub verdict: Verdict,
     /// Raw model score in [0.0, 1.0]. For multi-class gates this is the
     /// aggregated risk score, not a single class probability.
-    pub score: f32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub score: Option<f32>,
     /// The threshold this score was compared against, echoed for explainability.
     pub threshold: f32,
     /// Gate-specific structured detail (matched PII classes, class probabilities, ...).

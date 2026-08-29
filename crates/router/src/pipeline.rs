@@ -186,7 +186,7 @@ impl Pipeline {
                     Err(err) => GateOutcome {
                         gate: GateId::Prefilter,
                         verdict: controlplane_core::verdict::Verdict::Pass,
-                        score: 0.0,
+                        score: Some(0.0),
                         threshold: 0.0,
                         detail: serde_json::json!({ "error": err.to_string() }),
                         latency: prefilter_start.elapsed(),
@@ -197,7 +197,7 @@ impl Pipeline {
                 GateOutcome {
                     gate: GateId::Prefilter,
                     verdict: controlplane_core::verdict::Verdict::Pass,
-                    score: 0.0,
+                    score: Some(0.0),
                     threshold: 0.0,
                     detail: serde_json::json!({ "skipped": true }),
                     latency: Duration::from_micros(1),

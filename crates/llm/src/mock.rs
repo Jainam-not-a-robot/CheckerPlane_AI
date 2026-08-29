@@ -47,7 +47,7 @@ impl LlmBackend for MockLlm {
         let start = Instant::now();
         self.call_count.fetch_add(1, Ordering::SeqCst);
 
-        let (sampled_ms, is_hallucination) = {
+        let sampled_ms = {
             // Simulate normal distribution latency using Box-Muller transform
             let mut rng = rand::thread_rng();
             let u1: f32 = rng.gen_range(0.0001..1.0);
@@ -61,25 +61,36 @@ impl LlmBackend for MockLlm {
             #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
             let sampled_ms = (mean + z0 * stddev).max(10.0) as u64;
 
-            // Check if hallucination should be injected based on rate
-            let is_hallucination = rng.gen::<f32>() < self.config.hallucination_rate;
-
-            (sampled_ms, is_hallucination)
+            sampled_ms
         };
 
         tokio::time::sleep(Duration::from_millis(sampled_ms)).await;
 
+        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+        std::hash::Hash::hash(query, &mut hasher);
+        let query_hash = std::hash::Hasher::finish(&hasher);
+
+        let query_hash_prob = (query_hash % 1000) as f32 / 1000.0;
+        let is_hallucination = query_hash_prob < self.config.hallucination_rate;
+
         let response_text = if is_hallucination {
-            format!(
-                "Regarding your inquiry '{query}', I can definitively confirm that the lunar surface is composed of solid titanium carbide crystal formations."
-            )
+            if query_hash % 2 == 0 {
+                // Contradicting
+                format!("Actually, '{query}' is completely false. The opposite is true.")
+            } else {
+                // Off-topic
+                "The lunar surface is composed of solid titanium carbide crystal formations."
+                    .to_string()
+            }
         } else if let Some(hist) = history {
+            // Grounded with history
             format!(
-                "Based on our earlier discussion ('{hist}'), here is the answer to '{query}': ControlPlane Checker enforces high-performance guardrails across all stages."
+                "Based on our earlier discussion ('{hist}'), here is the answer to '{query}': Yes, that is correct."
             )
         } else {
+            // Grounded without history
             format!(
-                "Here is the synthesized response to your request '{query}': All input guardrails have cleared successfully."
+                "Here is the detailed explanation for '{query}': It works exactly as you described in the premise."
             )
         };
 

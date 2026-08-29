@@ -47,7 +47,7 @@ weight_word_salad = 1.0
 weight_mild_gibberish = 0.35
 min_tokens_for_model = 3
 max_tokens_for_model = 64
-timeout_ms = 40
+timeout_ms = 150
 failure_policy = "open"
 
 [gates.pii]
@@ -79,7 +79,7 @@ failure_policy = "closed"
 
 [gates.relevance]
 enabled = true
-threshold = 0.40               # deliberately lower than grounding: different base rate
+threshold = 0.10               # deliberately lower than grounding: different base rate
 max_premise_tokens = 64        # premise is just the query
 timeout_ms = 80
 failure_policy = "open"        # a weak relevance signal should not block a valid answer

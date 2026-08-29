@@ -117,7 +117,7 @@ impl Gate for RelevanceGate {
         Ok(GateOutcome {
             gate: GateId::Relevance,
             verdict,
-            score,
+            score: Some(score),
             threshold: self.config.threshold,
             detail: serde_json::json!({
                 "entailment_prob": p_entail,

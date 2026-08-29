@@ -113,7 +113,7 @@ impl Gate for PiiGate {
         Ok(GateOutcome {
             gate: GateId::Pii,
             verdict,
-            score,
+            score: Some(score),
             threshold: 0.5,
             detail: serde_json::json!({
                 "blocked_matches": block_details,
