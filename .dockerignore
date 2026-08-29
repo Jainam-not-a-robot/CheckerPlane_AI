@@ -1,0 +1,11 @@
+target/
+models/
+.git/
+.gitignore
+.github/
+.venv/
+bench/
+benches/
+tests/fixtures/
+*.md
+config/local.toml

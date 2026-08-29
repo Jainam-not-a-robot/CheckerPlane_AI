@@ -1,0 +1,30 @@
+# Rust build artifacts
+/target
+Cargo.lock
+
+# Configuration with secrets
+config/local.toml
+
+# Model weights — NEVER commit model weights
+models/**/*.onnx
+models/**/*.onnx_data
+models/**/*.bin
+models/**/*.safetensors
+models/**/*.pt
+models/**/*.bin.*
+
+# Python environment & cache for offline tools
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db

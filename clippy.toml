@@ -1,0 +1,3 @@
+# Clippy configuration for ControlPlane Checker
+avoid-breaking-exported-api = false
+doc-valid-idents = ["ONNX", "HHEM", "NLI", "BERT", "DeBERTa", "LLM", "PII", "PAN", "Aadhaar", "Luhn", "Verhoeff", "Tokio"]

@@ -1,0 +1,38 @@
+services:
+  controlplane-checker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: controlplane-checker
+    ports:
+      - "8080:8080"
+    environment:
+      - CP_SERVER__BIND=0.0.0.0:8080
+      - CP_TELEMETRY__LOG_FORMAT=json
+      - CP_TELEMETRY__LOG_LEVEL=info
+      - CP_LLM__BACKEND=mock
+      # Set your Gemini API key here when switching to live LLM generation:
+      # - CP_LLM__BACKEND=gemini
+      # - CP_LLM__API_KEY=YOUR_GEMINI_API_KEY_HERE
+    volumes:
+      # Model weights are mounted at runtime from the host
+      - ./models:/app/models:ro
+      # Optional local configuration overrides
+      - ./config/local.toml:/app/config/local.toml:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Optional Prometheus scraper service
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   container_name: controlplane-prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   volumes:
+  #     - ./bench/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+  #   depends_on:
+  #     - controlplane-checker

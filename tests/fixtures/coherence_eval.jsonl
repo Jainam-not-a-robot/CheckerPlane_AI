@@ -1,0 +1,61 @@
+{"text": "best rust orm postgres", "label": "clean"}
+{"text": "jodhpur weather tomorrow", "label": "clean"}
+{"text": "docker compose healthcheck syntax", "label": "clean"}
+{"text": "golang context cancellation example", "label": "clean"}
+{"text": "python dataclass default factory", "label": "clean"}
+{"text": "kubernetes ingress tls cert manager", "label": "clean"}
+{"text": "react usememo vs usecallback differences", "label": "clean"}
+{"text": "linux find directory modified 24 hours", "label": "clean"}
+{"text": "nginx reverse proxy websockets config", "label": "clean"}
+{"text": "git rebase interactive drop commit", "label": "clean"}
+{"text": "aws s3 bucket policy public read", "label": "clean"}
+{"text": "sqlite wal mode advantages disadvantages", "label": "clean"}
+{"text": "css grid center item vertically horizontally", "label": "clean"}
+{"text": "typescript generic constraint extends keyof", "label": "clean"}
+{"text": "ffmpeg convert mp4 to webm fast", "label": "clean"}
+{"text": "redis sorted set range by score", "label": "clean"}
+{"text": "tokio spawn vs spawn_blocking", "label": "clean"}
+{"text": "systemd service restart on failure delay", "label": "clean"}
+{"text": "postgresql jsonb index gin path ops", "label": "clean"}
+{"text": "curl follow redirects command line flag", "label": "clean"}
+{"text": "How do I deploy an ONNX Runtime model using Rust?", "label": "clean"}
+{"text": "Can you explain the difference between processes and threads in operating systems?", "label": "clean"}
+{"text": "Please write a Python script to parse CSV files and compute average prices.", "label": "clean"}
+{"text": "What are the core design principles of RESTful APIs?", "label": "clean"}
+{"text": "Explain how garbage collection works in Java JVM.", "label": "clean"}
+{"text": "What is the capital city of France?", "label": "clean"}
+{"text": "Could you provide an example of implementing a binary search tree in Rust?", "label": "clean"}
+{"text": "How does asymmetric cryptography protect data during TLS handshakes?", "label": "clean"}
+{"text": "Summarize the key events leading up to the Apollo 11 moon landing.", "label": "clean"}
+{"text": "What is the time complexity of Dijkstra's shortest path algorithm?", "label": "clean"}
+{"text": "Blue room quantum hear elephant yesterday table flight.", "label": "word_salad"}
+{"text": "Singing banana calculate orange running pencil purple cloud.", "label": "word_salad"}
+{"text": "Database sky refrigerator walking theorem triangle whisper sleep.", "label": "word_salad"}
+{"text": "Green ideas sleep furiously inside the laughing mathematics.", "label": "word_salad"}
+{"text": "Window bicycle quantum gravity jumping under chocolate rainfall.", "label": "word_salad"}
+{"text": "Tomorrow yesterday was eating yellow silence across the mountain.", "label": "word_salad"}
+{"text": "Spoon telephone galaxy dancing across frozen ocean philosophy.", "label": "word_salad"}
+{"text": "Electric carpet dreaming through algorithmic feather architecture.", "label": "word_salad"}
+{"text": "Clockwise potato calculates the invisible square velocity.", "label": "word_salad"}
+{"text": "Floating sandwich delivers heavy sunshine to the square circle.", "label": "word_salad"}
+{"text": "River book reads the swimming chair behind the loud breeze.", "label": "word_salad"}
+{"text": "Quantum tomato whispers to the mathematical cloud garden.", "label": "word_salad"}
+{"text": "asdfjkl;asdfjkl;asdfjkl;", "label": "noise"}
+{"text": "qwertyuiopasdfghjklzxcvbnm", "label": "noise"}
+{"text": "zzzzzzzzxxxxxxxxccccvvvvvbbbb", "label": "noise"}
+{"text": "!@#$%^&*()_+=-{}[]:;<>?,./", "label": "noise"}
+{"text": "11111111111111111111111111111", "label": "noise"}
+{"text": "aaaaabbbbbcccccdddddeeeeefffff", "label": "noise"}
+{"text": "kjsdhfkjshdfkjhsdjkfhkjsdhf", "label": "noise"}
+{"text": "987654321098765432109876543210", "label": "noise"}
+{"text": "poiu trew qlkj hgfd samn bvcx", "label": "noise"}
+{"text": "x x x x x x x x x x x x x x x x", "label": "noise"}
+{"text": "0xDEADBEEF0xCAFE0x12340x5678", "label": "noise"}
+{"text": "mnbvcxzlkjhgfdsapoiuytrewq", "label": "noise"}
+{"text": "Tell me about the history of the Internet and its foundational protocols.", "label": "clean"}
+{"text": "How can I optimize database query performance using compound indexes?", "label": "clean"}
+{"text": "Whispering mirror multiplies transparent velvet lightning bolts.", "label": "word_salad"}
+{"text": "Running triangle sleeps happily inside the loud algorithm.", "label": "word_salad"}
+{"text": "dfkjghsdlkfjhgskdjfhgkjsdhfksjdfh", "label": "noise"}
+{"text": "-------------------------------", "label": "noise"}
+{"text": "Why is Rust memory-safe without a runtime garbage collector?", "label": "clean"}

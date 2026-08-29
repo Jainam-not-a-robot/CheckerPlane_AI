@@ -1,0 +1,74 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/core",
+    "crates/inference",
+    "crates/gates",
+    "crates/llm",
+    "crates/router",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.83"
+license = "Apache-2.0"
+authors = ["ControlPlane Checker Contributors"]
+repository = "https://github.com/controlplane-checker/controlplane-checker"
+
+[workspace.dependencies]
+# Workspace internal crates
+controlplane-core = { path = "crates/core" }
+controlplane-inference = { path = "crates/inference" }
+controlplane-gates = { path = "crates/gates" }
+controlplane-llm = { path = "crates/llm" }
+
+# Async & runtime
+tokio = { version = "1.43", features = ["full"] }
+async-trait = "0.1.86"
+futures-util = "0.3.31"
+parking_lot = "0.12.3"
+
+# Web & Networking
+axum = { version = "0.8.1", features = ["macros"] }
+tower = { version = "0.5.2", features = ["util", "timeout"] }
+tower-http = { version = "0.6.2", features = ["trace", "cors"] }
+reqwest = { version = "0.12.12", default-features = false, features = ["json", "rustls-tls"] }
+
+# Serialization & Config
+serde = { version = "1.0.217", features = ["derive"] }
+serde_json = "1.0.138"
+figment = { version = "0.10.19", features = ["toml", "env"] }
+toml = "0.8.20"
+
+# Error handling
+thiserror = "2.0.11"
+
+# Telemetry & Observability
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter", "json"] }
+metrics = "0.24.1"
+metrics-exporter-prometheus = "0.16.0"
+uuid = { version = "1.13.1", features = ["v4", "serde"] }
+chrono = { version = "0.4.39", features = ["serde"] }
+
+# Inference & Tokenization
+# Pinned to exact RC version as required by §1 Hard Constraints
+ort = "=2.0.0-rc.13"
+tokenizers = { version = "0.21.0", default-features = false, features = ["onig"] }
+regex = "1.11.1"
+rand = "0.8.5"
+
+# Benchmarks
+criterion = { version = "0.5.1", features = ["async_tokio"] }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[profile.bench]
+opt-level = 3
+debug = true

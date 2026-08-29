@@ -1,0 +1,103 @@
+[server]
+bind = "0.0.0.0:8080"
+request_timeout_ms = 5000
+max_body_bytes = 65536
+shutdown_grace_ms = 10000
+
+[pipeline]
+clarify_enabled = false
+input_gate_budget_ms = 120     # wall-clock budget for the whole input fan-out
+output_gate_budget_ms = 200
+
+[inference]
+# Sessions per model. Parallelism comes from the pool, NOT from ONNX internal threading.
+pool_size_per_model = 4
+intra_op_threads = 1
+inter_op_threads = 1
+graph_optimization_level = "all"
+# When true, force every model to the stub backend even if weights are present.
+force_stub = false
+model_dir = "models"
+
+[models.cross_encoder]
+# WHY: two gates share this pool; sizing it as a single-gate model causes
+# acquire contention that shows up in cp_inference_pool_wait_seconds.
+pool_size = 8
+
+[models.toxicity]
+# The upstream repo ships a pre-quantized graph under a non-default name.
+weights_file = "model_optimized_quantized.onnx"
+
+[gates.prefilter]
+enabled = true
+min_chars = 2
+max_chars = 8000
+# Fraction of characters that must be in the expected script before we stop trusting the input.
+min_script_ratio = 0.5
+# Shannon entropy per character above which input is treated as keyboard mashing.
+max_char_entropy = 4.2
+
+[gates.coherence]
+enabled = true
+# SINGLE TUNING DIAL. 0.0 = permissive, 1.0 = paranoid.
+# Effective threshold = 1.0 - strictness.
+strictness = 0.55
+weight_noise = 1.0
+weight_word_salad = 1.0
+weight_mild_gibberish = 0.35
+min_tokens_for_model = 3
+max_tokens_for_model = 64
+timeout_ms = 40
+failure_policy = "open"
+
+[gates.pii]
+enabled = true
+block_classes = ["payment_card", "aadhaar", "pan", "credential"]
+failure_policy = "closed"
+# No model, no timeout_ms — this gate is pure regex.
+
+[gates.toxicity]
+enabled = true
+threshold = 0.80
+timeout_ms = 40
+failure_policy = "closed"
+
+[gates.intent]
+enabled = true
+threshold = 0.90          # deliberately high: false positives here are very visible
+timeout_ms = 40
+failure_policy = "closed"
+
+[gates.grounding]
+enabled = true
+threshold = 0.50
+weight_contradiction = 1.0     # hard hallucination
+weight_neutral = 0.45          # soft hallucination: unsupported but not contradicted
+max_premise_tokens = 256
+timeout_ms = 150
+failure_policy = "closed"
+
+[gates.relevance]
+enabled = true
+threshold = 0.40               # deliberately lower than grounding: different base rate
+max_premise_tokens = 64        # premise is just the query
+timeout_ms = 80
+failure_policy = "open"        # a weak relevance signal should not block a valid answer
+
+[llm]
+backend = "mock"          # "mock" | "gemini"
+model = "gemini-2.0-flash"
+timeout_ms = 15000
+max_output_tokens = 1024
+# API key comes from CP_LLM__API_KEY. Never commit it.
+
+[llm.mock]
+# Deterministic latency distribution so load tests are reproducible.
+latency_mean_ms = 700
+latency_stddev_ms = 150
+hallucination_rate = 0.15
+
+[telemetry]
+log_format = "json"       # "json" | "pretty"
+log_level = "info"
+metrics_enabled = true

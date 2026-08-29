@@ -1,0 +1,11 @@
+# Example local configuration override.
+# Copy to `config/local.toml` and fill in secrets. `config/local.toml` is gitignored.
+
+[llm]
+backend = "gemini"
+model = "gemini-2.0-flash"
+api_key = "YOUR_GEMINI_API_KEY_HERE"
+
+[telemetry]
+log_format = "pretty"
+log_level = "debug"
