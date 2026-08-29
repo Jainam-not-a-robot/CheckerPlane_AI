@@ -38,6 +38,7 @@ impl GateExecutor {
     /// 2. Instant cancellation of outstanding gates upon first `Block` verdict.
     /// 3. Per-gate timeout and error handling with fail-open/fail-closed policies.
     /// 4. Hard overall stage wall-clock budget.
+    #[allow(clippy::too_many_lines, clippy::cast_possible_truncation)]
     pub async fn execute(
         stage: Stage,
         gates: &[DynGate],

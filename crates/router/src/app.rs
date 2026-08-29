@@ -20,7 +20,6 @@ use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
 
 /// Builds the Axum application router with all routes and middleware layers.
-#[must_use]
 pub fn create_app(
     config: &AppConfig,
     pipeline: Arc<Pipeline>,

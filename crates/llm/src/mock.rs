@@ -54,8 +54,11 @@ impl LlmBackend for MockLlm {
             let u2: f32 = rng.gen_range(0.0001..1.0);
             let z0 = (-2.0 * u1.ln()).sqrt() * (2.0 * std::f32::consts::PI * u2).cos();
 
+            #[allow(clippy::cast_precision_loss)]
             let mean = self.config.latency_mean_ms as f32;
+            #[allow(clippy::cast_precision_loss)]
             let stddev = self.config.latency_stddev_ms as f32;
+            #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
             let sampled_ms = (mean + z0 * stddev).max(10.0) as u64;
 
             // Check if hallucination should be injected based on rate

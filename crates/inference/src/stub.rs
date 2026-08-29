@@ -121,6 +121,7 @@ impl ModelBackend for StubBackend {
         let mut raw = Vec::with_capacity(n);
 
         for i in 0..n {
+            #[allow(clippy::cast_precision_loss)]
             let val = ((hash.wrapping_add(i as u64 * 31)) % 100) as f32 / 100.0;
             raw.push(val);
         }
@@ -156,18 +157,17 @@ impl ModelBackend for StubBackend {
         }
 
         // Default: high entailment / grounded
-        match self.id.as_str() {
-            "cross_encoder" => {
-                // Classes: [contradiction, entailment, neutral] -> high entailment
-                Ok(vec![0.05, 0.90, 0.05])
-            }
-            _ => {
-                let hash = self.compute_hash(&combined);
-                let n = self.num_classes.max(2);
-                let mut raw = vec![0.1; n];
-                raw[1] = 0.85 + ((hash % 10) as f32 / 100.0);
-                Ok(raw)
-            }
+        if self.id.as_str() == "cross_encoder" {
+            // Classes: [contradiction, entailment, neutral] -> high entailment
+            Ok(vec![0.05, 0.90, 0.05])
+        } else {
+            let hash = self.compute_hash(&combined);
+            let n = self.num_classes.max(2);
+            let mut raw = vec![0.1; n];
+            #[allow(clippy::cast_precision_loss)]
+            let noise = (hash % 10) as f32 / 100.0;
+            raw[1] = 0.85 + noise;
+            Ok(raw)
         }
     }
 }

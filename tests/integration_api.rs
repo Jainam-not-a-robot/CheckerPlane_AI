@@ -116,7 +116,7 @@ async fn test_check_endpoint_allow() {
     assert_eq!(json["decision"], "allow");
     assert!(json["response"].is_string());
     assert!(json["blocked_by"].is_null());
-    assert!(json["gates"].as_array().unwrap().len() > 0);
+    assert!(!json["gates"].as_array().unwrap().is_empty());
 }
 
 #[tokio::test]

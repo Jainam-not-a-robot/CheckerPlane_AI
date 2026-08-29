@@ -21,7 +21,7 @@ use tracing::{info, warn};
 pub struct RegisteredModel {
     /// Model identifier key.
     pub model_id: &'static str,
-    /// Upstream HuggingFace repository identifier.
+    /// Upstream `HuggingFace` repository identifier.
     pub hf_repo: &'static str,
     /// Task description.
     pub task: &'static str,
@@ -66,7 +66,7 @@ pub struct ModelInfo {
     pub backend: String,
     /// True when backed by live weights.
     pub is_live: bool,
-    /// Upstream HuggingFace repository.
+    /// Upstream `HuggingFace` repository.
     pub hf_repo: String,
     /// Task category.
     pub task: String,

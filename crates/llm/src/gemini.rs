@@ -94,7 +94,7 @@ impl LlmBackend for GeminiClient {
             .await
             .map_err(|err| {
                 if err.is_timeout() {
-                    LlmError::Timeout(self.timeout.as_millis() as u64)
+                    LlmError::Timeout(u64::try_from(self.timeout.as_millis()).unwrap_or(u64::MAX))
                 } else {
                     LlmError::Http(err.to_string())
                 }
@@ -125,15 +125,15 @@ impl LlmBackend for GeminiClient {
             })?
             .to_string();
 
-        let prompt_tokens = body
+        let prompt_tokens = usize::try_from(body
             .pointer("/usageMetadata/promptTokenCount")
-            .and_then(|v| v.as_u64())
-            .unwrap_or(0) as usize;
+            .and_then(serde_json::Value::as_u64)
+            .unwrap_or(0)).unwrap_or(0);
 
-        let completion_tokens = body
+        let completion_tokens = usize::try_from(body
             .pointer("/usageMetadata/candidatesTokenCount")
-            .and_then(|v| v.as_u64())
-            .unwrap_or(0) as usize;
+            .and_then(serde_json::Value::as_u64)
+            .unwrap_or(0)).unwrap_or(0);
 
         Ok(LlmResponse {
             text,

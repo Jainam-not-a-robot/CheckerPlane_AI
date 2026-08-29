@@ -18,11 +18,11 @@ fn create_stub_gates() -> Vec<DynGate> {
     let coh_backend = Arc::new(StubBackend::new("coherence", 4));
     let tox_backend = Arc::new(StubBackend::new("toxicity", 2));
     let int_backend = Arc::new(StubBackend::new("intent", 2));
-    let pii_backend = Arc::new(StubBackend::new("pii_ner", 9));
+
 
     vec![
         Arc::new(CoherenceGate::new(config.gates.coherence, coh_backend)),
-        Arc::new(PiiGate::new(config.gates.pii, Some(pii_backend))),
+        Arc::new(PiiGate::new(config.gates.pii)),
         Arc::new(ToxicityGate::new(config.gates.toxicity, tox_backend)),
         Arc::new(IntentGate::new(config.gates.intent, int_backend)),
     ]

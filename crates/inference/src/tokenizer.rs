@@ -70,13 +70,13 @@ impl SharedTokenizer {
                     message: format!("tokenization failed: {err}"),
                 })?;
 
-        let input_ids: Vec<i64> = encoding.get_ids().iter().map(|&id| id as i64).collect();
+        let input_ids: Vec<i64> = encoding.get_ids().iter().map(|&id| i64::from(id)).collect();
         let attention_mask: Vec<i64> = encoding
             .get_attention_mask()
             .iter()
-            .map(|&m| m as i64)
+            .map(|&m| i64::from(m))
             .collect();
-        let token_type_ids: Vec<i64> = encoding.get_type_ids().iter().map(|&t| t as i64).collect();
+        let token_type_ids: Vec<i64> = encoding.get_type_ids().iter().map(|&t| i64::from(t)).collect();
         let length = input_ids.len();
 
         Ok(EncodedInput {
@@ -100,13 +100,13 @@ impl SharedTokenizer {
                     message: format!("pair tokenization failed: {err}"),
                 })?;
 
-        let input_ids: Vec<i64> = encoding.get_ids().iter().map(|&id| id as i64).collect();
+        let input_ids: Vec<i64> = encoding.get_ids().iter().map(|&id| i64::from(id)).collect();
         let attention_mask: Vec<i64> = encoding
             .get_attention_mask()
             .iter()
-            .map(|&m| m as i64)
+            .map(|&m| i64::from(m))
             .collect();
-        let token_type_ids: Vec<i64> = encoding.get_type_ids().iter().map(|&t| t as i64).collect();
+        let token_type_ids: Vec<i64> = encoding.get_type_ids().iter().map(|&t| i64::from(t)).collect();
         let length = input_ids.len();
 
         Ok(EncodedInput {
@@ -125,7 +125,7 @@ impl SharedTokenizer {
 
     /// Truncates a text to the last `max_tokens` tokens (sliding window).
     ///
-    /// WHY: Default HuggingFace truncation trims from the end. For cross-encoders,
+    /// WHY: Default `HuggingFace` truncation trims from the end. For cross-encoders,
     /// this eats the hypothesis (response) first, which can invert the verdict.
     /// We cap the premise (history) on the way in, keeping the most recent context.
     ///

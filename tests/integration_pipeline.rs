@@ -82,8 +82,10 @@ async fn test_stub_block_triggers_block_and_short_circuits_llm() {
 async fn test_dry_run_mode_never_blocks() {
     let (pipeline, _mock_llm) = build_test_pipeline();
 
-    let mut options = RequestOptions::default();
-    options.dry_run = true;
+    let options = RequestOptions {
+        dry_run: true,
+        ..Default::default()
+    };
 
     let req_ctx = RequestContext::new(None, None, options);
 

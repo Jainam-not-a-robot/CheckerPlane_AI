@@ -1,4 +1,4 @@
-//! # ControlPlane Checker HTTP Router Crate
+//! # `ControlPlane` Checker HTTP Router Crate
 //!
 //! **Responsibility:** Houses HTTP route handlers, telemetry configuration, and request orchestration.
 //! **Pipeline Position:** Top-level application server.

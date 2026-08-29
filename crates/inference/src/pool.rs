@@ -26,8 +26,11 @@ pub struct SessionGuard {
 }
 
 impl SessionGuard {
-    /// Borrows a mutable reference to the underlying ONNX session.
-    #[must_use]
+    /// Exposes a mutable reference to the underlying ONNX session.
+    ///
+    /// # Panics
+    /// Panics if the session has been unexpectedly dropped.
+    #[allow(clippy::expect_used)]
     pub fn session_mut(&mut self) -> &mut Session {
         self.session.as_mut().expect("session must be present")
     }

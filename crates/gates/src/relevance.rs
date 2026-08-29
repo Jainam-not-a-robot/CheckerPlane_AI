@@ -26,6 +26,8 @@ pub struct RelevanceGate {
 impl RelevanceGate {
     /// Constructs a new Relevance gate.
     /// Returns an error if the model does not have the expected NLI classes.
+    /// # Errors
+    /// Returns a `String` if the backend is incompatible.
     pub fn new(config: RelevanceConfig, backend: Arc<dyn ModelBackend>) -> Result<Self, String> {
         let classes = backend.class_names();
         let mut contradiction_idx = 0;

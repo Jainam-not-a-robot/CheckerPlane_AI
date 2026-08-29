@@ -46,6 +46,8 @@ pub struct CheckRequest {
 }
 
 /// Handler for `POST /v1/check`.
+/// # Errors
+/// Returns an error if the request cannot be handled by the pipeline.
 pub async fn check_handler(
     State(state): State<AppState>,
     headers: HeaderMap,

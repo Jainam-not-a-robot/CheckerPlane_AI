@@ -43,7 +43,8 @@ impl ConversationHistory {
     pub fn format_summary(&self) -> String {
         let mut formatted = String::new();
         for turn in &self.turns {
-            formatted.push_str(&format!("{}: {}\n", turn.role, turn.content));
+            use std::fmt::Write;
+            let _ = writeln!(formatted, "{}: {}", turn.role, turn.content);
         }
         formatted
     }

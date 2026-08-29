@@ -1,3 +1,4 @@
+#![allow(clippy::cast_precision_loss)]
 //! # Tier 0 Heuristic Prefilter Gate
 //!
 //! **Responsibility:** Performs instant synchronous heuristic validation on raw user queries,

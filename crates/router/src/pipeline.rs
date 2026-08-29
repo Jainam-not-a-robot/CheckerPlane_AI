@@ -24,6 +24,7 @@ use uuid::Uuid;
 
 /// Timing breakdown across pipeline evaluation stages.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[allow(clippy::struct_field_names)]
 pub struct PipelineTimings {
     /// Tier 0 heuristic prefilter latency in milliseconds.
     pub prefilter_ms: f64,
@@ -160,6 +161,7 @@ impl Pipeline {
     ///
     /// # Errors
     /// Returns `PipelineError` if LLM execution fails unrecoverably.
+    #[allow(clippy::too_many_lines)]
     pub async fn check(
         &self,
         req_ctx: RequestContext,

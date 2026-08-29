@@ -25,8 +25,10 @@ pub struct GroundingGate {
 }
 
 impl GroundingGate {
-    /// Constructs a new grounding gate from configuration and a cross_encoder backend.
-    /// Returns an error if the model does not have the expected NLI classes.
+    /// Constructs a new grounding gate from configuration and a `cross_encoder` backend.
+    ///
+    /// # Errors
+    /// Returns a `String` if the backend is incompatible.
     pub fn new(config: GroundingConfig, backend: Arc<dyn ModelBackend>) -> Result<Self, String> {
         let classes = backend.class_names();
         let mut contradiction_idx = 0;

@@ -1,7 +1,7 @@
 //! # Live ONNX Model Backend
 //!
 //! **Responsibility:** Executes tensor inference over live ONNX models using the session pool,
-//! tokenizers, and dynamic class label mappings loaded from HuggingFace `config.json`.
+//! tokenizers, and dynamic class label mappings loaded from `HuggingFace` `config.json`.
 //! **Pipeline Position:** Invoked by gates during live model evaluation.
 //! **Latency Budget:** Forward pass: 5–30 ms.
 //! **Failure Mode:** Returns `Result<_, InferenceError>`.
@@ -67,7 +67,7 @@ impl OnnxBackend {
 
     /// Loads the `id2label` mapping from `config.json` if available.
     ///
-    /// WHY: HuggingFace model exports can order classes arbitrarily in id2label (e.g. clean, noise, etc.).
+    /// WHY: `HuggingFace` model exports can order classes arbitrarily in id2label (e.g. clean, noise, etc.).
     /// Reading config.json dynamically prevents catastrophic classification index misalignment.
     fn load_id2label(model_id: &str, config_path: &Path) -> Vec<String> {
         if let Ok(content) = fs::read_to_string(config_path) {
@@ -141,6 +141,7 @@ impl OnnxBackend {
                     message: format!("failed to extract logits: {err}"),
                 })?;
 
+        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
         let num_classes = *out_shape.last().unwrap_or(&0) as usize;
         if num_classes == 0 || raw_data.is_empty() {
             return Err(InferenceError::ShapeMismatch {

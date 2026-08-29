@@ -1,4 +1,4 @@
-//! # ControlPlane Checker Service Entrypoint
+//! # `ControlPlane` Checker Service Entrypoint
 //!
 //! **Responsibility:** Bootstraps runtime configuration, telemetry, model discovery,
 //! Tokio thread pools, pipeline assembly, and the Axum HTTP listener with graceful shutdown.

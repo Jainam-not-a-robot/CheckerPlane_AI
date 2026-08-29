@@ -10,6 +10,9 @@ use tokio::signal;
 use tracing::info;
 
 /// Awaits OS shutdown signals across Unix and Windows platforms.
+/// # Panics
+/// Panics if the signal handlers fail to install.
+#[allow(clippy::expect_used)]
 pub async fn shutdown_signal() {
     let ctrl_c = async {
         signal::ctrl_c()

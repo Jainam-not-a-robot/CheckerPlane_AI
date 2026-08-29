@@ -1,3 +1,4 @@
+#![allow(clippy::expect_used)]
 //! # Deterministic PII Regex Pattern Matching
 //!
 //! **Responsibility:** Implements high-precision regex matching combined with mathematical checksums
@@ -48,7 +49,7 @@ static PHONE_RE: LazyLock<Regex> = LazyLock::new(|| {
 /// High-risk PII pattern match finding.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PatternFinding {
-    /// Identifier category class (e.g. "payment_card", "aadhaar", "pan", "credential").
+    /// Identifier category class (e.g. "`payment_card`", "`aadhaar`", "`pan`", "`credential`").
     pub class_name: &'static str,
     /// Masked snippet or match summary.
     pub matched_value: String,
@@ -164,5 +165,5 @@ fn mask_identifier(val: &str) -> String {
         return "****".to_string();
     }
     let suffix = &val[len - 4..];
-    format!("****-{}", suffix)
+    format!("****-{suffix}")
 }
