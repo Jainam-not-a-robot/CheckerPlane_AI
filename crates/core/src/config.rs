@@ -15,8 +15,8 @@ use figment::{
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 
-/// Root configuration container for ControlPlane Checker.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// Root configuration container for `ControlPlane` Checker.
+#[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 pub struct AppConfig {
     /// HTTP server configuration.
     #[serde(default)]
@@ -36,23 +36,9 @@ pub struct AppConfig {
     /// Tracing and telemetry metrics configuration.
     #[serde(default)]
     pub telemetry: TelemetryConfig,
-    /// Model-specific overrides (pool_size, weights_file).
+    /// Model-specific overrides (`pool_size`, `weights_file`).
     #[serde(default)]
     pub models: std::collections::HashMap<String, ModelOverrideConfig>,
-}
-
-impl Default for AppConfig {
-    fn default() -> Self {
-        Self {
-            server: ServerConfig::default(),
-            pipeline: PipelineConfig::default(),
-            inference: InferenceConfig::default(),
-            gates: GatesConfig::default(),
-            llm: LlmConfig::default(),
-            telemetry: TelemetryConfig::default(),
-            models: std::collections::HashMap::new(),
-        }
-    }
 }
 
 /// Model-specific configuration overrides (e.g., [models.toxicity]).
@@ -60,7 +46,7 @@ impl Default for AppConfig {
 pub struct ModelOverrideConfig {
     /// Override for the number of pooled sessions.
     pub pool_size: Option<usize>,
-    /// Override for the weights filename (e.g. "model_optimized_quantized.onnx").
+    /// Override for the weights filename (e.g. "`model_optimized_quantized.onnx`").
     pub weights_file: Option<String>,
 }
 

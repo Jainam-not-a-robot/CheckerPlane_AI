@@ -1,7 +1,7 @@
 //! # Core Domain Models and Configuration Types
 //!
 //! **Responsibility:** Defines foundational data types, configuration structures, error taxonomies,
-//! request contexts, and gate outcomes used across the entire ControlPlane Checker pipeline.
+//! request contexts, and gate outcomes used across the entire `ControlPlane` Checker pipeline.
 //! **Pipeline Position:** Cross-cutting substrate used in all pipeline tiers (Tier 0, Tier 1, LLM, Tier 2).
 //! **Latency Budget:** Zero computational overhead (<1 µs); purely in-memory data structures.
 //! **Failure Mode:** Infallible data definitions.
