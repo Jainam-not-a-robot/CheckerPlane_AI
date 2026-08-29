@@ -76,22 +76,17 @@ impl LlmBackend for MockLlm {
         let response_text = if is_hallucination {
             if query_hash % 2 == 0 {
                 // Contradicting
-                format!("Actually, '{query}' is completely false. The opposite is true.")
+                format!("No, '{query}' is completely false and incorrect.")
             } else {
                 // Off-topic
-                "The lunar surface is composed of solid titanium carbide crystal formations."
-                    .to_string()
+                "The boiling point of water is 100 degrees Celsius at sea level.".to_string()
             }
         } else if let Some(hist) = history {
             // Grounded with history
-            format!(
-                "Based on our earlier discussion ('{hist}'), here is the answer to '{query}': Yes, that is correct."
-            )
+            format!("The answer to your question is: {hist}")
         } else {
             // Grounded without history
-            format!(
-                "Here is the detailed explanation for '{query}': It works exactly as you described in the premise."
-            )
+            format!("The answer to '{query}' is that it functions as expected.")
         };
 
         let prompt_tokens = query.split_whitespace().count() + 10;

@@ -80,8 +80,24 @@ impl Gate for GroundingGate {
         let response = ctx.response.unwrap_or("");
         let query = ctx.query;
 
-        // If history summary is available, use it as premise; otherwise fall back to user query
-        let premise_raw = ctx.request.history_summary.as_deref().unwrap_or(query);
+        // Grounding requires a history summary to ground against.
+        let premise_raw = match ctx.request.history_summary.as_deref() {
+            Some(summary) if !summary.trim().is_empty() => summary,
+            _ => {
+                return Ok(GateOutcome {
+                    gate: GateId::Grounding,
+                    verdict: Verdict::Pass,
+                    score: Some(0.0),
+                    threshold: 0.0,
+                    detail: serde_json::json!({
+                        "skipped": true,
+                        "reason": "no_history_summary_provided"
+                    }),
+                    latency: start.elapsed(),
+                    degraded: false,
+                });
+            }
+        };
 
         // WHY: We need sliding-window truncation on the premise to avoid eating the response (hypothesis)
         // when concatenating. By capping the premise on the way in, we keep the most recent context
