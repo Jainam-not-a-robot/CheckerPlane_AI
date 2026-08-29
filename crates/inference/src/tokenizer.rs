@@ -76,7 +76,11 @@ impl SharedTokenizer {
             .iter()
             .map(|&m| i64::from(m))
             .collect();
-        let token_type_ids: Vec<i64> = encoding.get_type_ids().iter().map(|&t| i64::from(t)).collect();
+        let token_type_ids: Vec<i64> = encoding
+            .get_type_ids()
+            .iter()
+            .map(|&t| i64::from(t))
+            .collect();
         let length = input_ids.len();
 
         Ok(EncodedInput {
@@ -106,7 +110,11 @@ impl SharedTokenizer {
             .iter()
             .map(|&m| i64::from(m))
             .collect();
-        let token_type_ids: Vec<i64> = encoding.get_type_ids().iter().map(|&t| i64::from(t)).collect();
+        let token_type_ids: Vec<i64> = encoding
+            .get_type_ids()
+            .iter()
+            .map(|&t| i64::from(t))
+            .collect();
         let length = input_ids.len();
 
         Ok(EncodedInput {

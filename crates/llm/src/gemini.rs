@@ -125,15 +125,19 @@ impl LlmBackend for GeminiClient {
             })?
             .to_string();
 
-        let prompt_tokens = usize::try_from(body
-            .pointer("/usageMetadata/promptTokenCount")
-            .and_then(serde_json::Value::as_u64)
-            .unwrap_or(0)).unwrap_or(0);
+        let prompt_tokens = usize::try_from(
+            body.pointer("/usageMetadata/promptTokenCount")
+                .and_then(serde_json::Value::as_u64)
+                .unwrap_or(0),
+        )
+        .unwrap_or(0);
 
-        let completion_tokens = usize::try_from(body
-            .pointer("/usageMetadata/candidatesTokenCount")
-            .and_then(serde_json::Value::as_u64)
-            .unwrap_or(0)).unwrap_or(0);
+        let completion_tokens = usize::try_from(
+            body.pointer("/usageMetadata/candidatesTokenCount")
+                .and_then(serde_json::Value::as_u64)
+                .unwrap_or(0),
+        )
+        .unwrap_or(0);
 
         Ok(LlmResponse {
             text,
