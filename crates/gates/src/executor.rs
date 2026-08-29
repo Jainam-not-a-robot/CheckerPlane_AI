@@ -8,7 +8,7 @@
 
 use crate::DynGate;
 use controlplane_core::context::GateContext;
-use controlplane_core::error::GateError;
+
 use controlplane_core::verdict::{BlockReason, FailurePolicy, GateId, GateOutcome, Stage, Verdict};
 use futures_util::stream::FuturesUnordered;
 use futures_util::StreamExt;
@@ -110,7 +110,7 @@ impl GateExecutor {
                     let gate_id = gate.id();
                     let policy = gate.failure_policy();
 
-                    let mut outcome = match eval_result {
+                    let outcome = match eval_result {
                         // Successful evaluation within gate timeout
                         Ok(Ok(mut gate_outcome)) => {
                             // Forward-compatibility handling for Clarify

@@ -1,0 +1,4 @@
+optimum[onnxruntime]
+transformers
+huggingface_hub[cli]
+torch

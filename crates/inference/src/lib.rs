@@ -18,9 +18,9 @@ pub mod registry;
 pub mod stub;
 pub mod tokenizer;
 
-pub use backend::{ModelBackend, TokenTag};
+pub use backend::ModelBackend;
 pub use onnx::OnnxBackend;
 pub use pool::{SessionGuard, SessionPool};
-pub use registry::{ModelInfo, ModelRegistry, RegisteredModel};
+pub use registry::{ModelInfo, ModelRegistry, RegisteredModel, MODEL_REGISTRY_TABLE};
 pub use stub::StubBackend;
 pub use tokenizer::SharedTokenizer;

@@ -7,6 +7,8 @@
 //! **Failure Mode:** Returns `Result<_, InferenceError>`.
 
 use crate::backend::ModelBackend;
+use crate::pool::SessionPool;
+use crate::tokenizer::{EncodedInput, SharedTokenizer};
 use controlplane_core::error::InferenceError;
 use ort::value::Tensor;
 use std::collections::BTreeMap;
@@ -125,14 +127,13 @@ impl OnnxBackend {
         let logits_val = outputs
             .get("logits")
             .or_else(|| outputs.get("output_0"))
-            .or_else(|| outputs.get(0))
             .ok_or_else(|| InferenceError::ShapeMismatch {
                 model: model_id.to_string(),
                 expected: "logits or output_0".to_string(),
                 actual: "none".to_string(),
             })?;
 
-        let (out_shape, raw_data) = logits_val.try_extract_raw_tensor::<f32>().map_err(|err| {
+        let (out_shape, raw_data) = logits_val.try_extract_tensor::<f32>().map_err(|err| {
             InferenceError::OnnxError {
                 model: model_id.to_string(),
                 message: format!("failed to extract logits: {err}"),

@@ -130,14 +130,14 @@ impl Pipeline {
         if config.gates.grounding.enabled {
             match GroundingGate::new(config.gates.grounding.clone(), Arc::clone(&cross_encoder)) {
                 Ok(gate) => output_gates.push(Arc::new(gate)),
-                Err(err) => return Err(PipelineError::Initialization(format!("GroundingGate initialization failed: {err}"))),
+                Err(err) => return Err(PipelineError::Internal(format!("GroundingGate initialization failed: {err}"))),
             }
         }
 
         if config.gates.relevance.enabled {
             match RelevanceGate::new(config.gates.relevance.clone(), Arc::clone(&cross_encoder)) {
                 Ok(gate) => output_gates.push(Arc::new(gate)),
-                Err(err) => return Err(PipelineError::Initialization(format!("RelevanceGate initialization failed: {err}"))),
+                Err(err) => return Err(PipelineError::Internal(format!("RelevanceGate initialization failed: {err}"))),
             }
         }
 

@@ -17,7 +17,7 @@ use controlplane_core::error::GateError;
 use controlplane_core::verdict::{BlockReason, FailurePolicy, GateId, GateOutcome, Stage, Verdict};
 use patterns::{scan_high_risk_patterns, scan_observation_patterns};
 use std::collections::HashSet;
-use std::sync::Arc;
+
 use std::time::{Duration, Instant};
 
 /// PII guardrail gate.

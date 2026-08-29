@@ -92,17 +92,8 @@ impl ModelRegistry {
             let model_id = registered.model_id;
             let model_dir = base_dir.join(model_id);
 
-            let mut pool_size = config.pool_size_per_model;
-            let mut weights_file = "model.onnx".to_string();
-
-            if let Some(overrides) = config.models.get(model_id) {
-                if let Some(ps) = overrides.pool_size {
-                    pool_size = ps;
-                }
-                if let Some(wf) = &overrides.weights_file {
-                    weights_file = wf.clone();
-                }
-            }
+            let pool_size = config.pool_size_per_model;
+            let weights_file = "model.onnx".to_string();
 
             let model_file = model_dir.join(&weights_file);
             let tokenizer_file = model_dir.join("tokenizer.json");

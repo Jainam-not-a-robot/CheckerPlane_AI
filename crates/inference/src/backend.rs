@@ -7,7 +7,6 @@
 //! **Failure Mode:** Returns `Result<_, InferenceError>`.
 
 use controlplane_core::error::InferenceError;
-use serde::{Deserialize, Serialize};
 
 
 

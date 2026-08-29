@@ -5,7 +5,7 @@
 //! **Latency Budget:** Handler overhead: <100 µs (excluding pipeline evaluation).
 //! **Failure Mode:** Maps internal errors to appropriate 4xx/5xx responses; guardrail blocks return 200 OK.
 
-use crate::pipeline::{CheckResponse, Pipeline};
+use crate::pipeline::Pipeline;
 use crate::telemetry::render_metrics;
 use axum::{
     extract::State,

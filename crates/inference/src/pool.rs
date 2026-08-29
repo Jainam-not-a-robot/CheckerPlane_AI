@@ -101,7 +101,7 @@ impl SessionPool {
 
         // WHY: Parallelism comes from having N sessions, not from ONNX's internal thread pools.
         // Letting ONNX spawn its own threads per session oversubscribes the CPU and destroys tail latency.
-        let builder = builder
+        let mut builder = builder
             .with_intra_threads(1)
             .map_err(|err| InferenceError::OnnxError {
                 model: model_id.to_string(),

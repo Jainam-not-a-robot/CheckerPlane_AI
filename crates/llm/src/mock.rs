@@ -47,20 +47,24 @@ impl LlmBackend for MockLlm {
         let start = Instant::now();
         self.call_count.fetch_add(1, Ordering::SeqCst);
 
-        // Simulate normal distribution latency using Box-Muller transform
-        let mut rng = rand::thread_rng();
-        let u1: f32 = rng.gen_range(0.0001..1.0);
-        let u2: f32 = rng.gen_range(0.0001..1.0);
-        let z0 = (-2.0 * u1.ln()).sqrt() * (2.0 * std::f32::consts::PI * u2).cos();
+        let (sampled_ms, is_hallucination) = {
+            // Simulate normal distribution latency using Box-Muller transform
+            let mut rng = rand::thread_rng();
+            let u1: f32 = rng.gen_range(0.0001..1.0);
+            let u2: f32 = rng.gen_range(0.0001..1.0);
+            let z0 = (-2.0 * u1.ln()).sqrt() * (2.0 * std::f32::consts::PI * u2).cos();
 
-        let mean = self.config.latency_mean_ms as f32;
-        let stddev = self.config.latency_stddev_ms as f32;
-        let sampled_ms = (mean + z0 * stddev).max(10.0) as u64;
+            let mean = self.config.latency_mean_ms as f32;
+            let stddev = self.config.latency_stddev_ms as f32;
+            let sampled_ms = (mean + z0 * stddev).max(10.0) as u64;
+            
+            // Check if hallucination should be injected based on rate
+            let is_hallucination = rng.gen::<f32>() < self.config.hallucination_rate;
+            
+            (sampled_ms, is_hallucination)
+        };
 
         tokio::time::sleep(Duration::from_millis(sampled_ms)).await;
-
-        // Check if hallucination should be injected based on rate
-        let is_hallucination = rng.gen::<f32>() < self.config.hallucination_rate;
 
         let response_text = if is_hallucination {
             format!(
