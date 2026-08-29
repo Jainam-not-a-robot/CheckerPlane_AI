@@ -45,7 +45,7 @@ pub const MODEL_REGISTRY_TABLE: &[RegisteredModel] = &[
     },
     RegisteredModel {
         model_id: "intent",
-        hf_repo: "meta-llama/Llama-Prompt-Guard-2-22M",
+        hf_repo: "testsavantai/prompt-injection-defender-base-v0-onnx",
         task: "text-classification",
         num_classes: 2,
     },
