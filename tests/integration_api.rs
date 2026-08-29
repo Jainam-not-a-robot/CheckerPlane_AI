@@ -18,7 +18,10 @@ fn build_test_app() -> axum::Router {
     config.llm.mock.latency_mean_ms = 1;
     config.llm.mock.latency_stddev_ms = 0;
 
-    let registry = Arc::new(ModelRegistry::discover_and_load(&config.inference));
+    let registry = Arc::new(ModelRegistry::discover_and_load(
+        &config.inference,
+        &config.models,
+    ));
     let pipeline = Arc::new(Pipeline::build(config.clone(), &registry).expect("pipeline"));
 
     create_app(&config, pipeline, registry)

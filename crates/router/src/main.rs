@@ -46,7 +46,10 @@ fn main() {
 
     runtime.block_on(async move {
         // 4. Discover and instantiate model inference backends (live ONNX or deterministic stubs)
-        let registry = Arc::new(ModelRegistry::discover_and_load(&config.inference));
+        let registry = Arc::new(ModelRegistry::discover_and_load(
+            &config.inference,
+            &config.models,
+        ));
 
         // 5. Construct end-to-end pipeline
         let pipeline = Arc::new(Pipeline::build(config.clone(), &registry).expect(

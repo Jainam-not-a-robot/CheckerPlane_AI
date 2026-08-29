@@ -20,7 +20,7 @@ fn build_test_pipeline() -> (Pipeline, Arc<MockLlm>) {
     config.llm.mock.latency_stddev_ms = 0;
     config.llm.mock.hallucination_rate = 0.0;
 
-    let registry = ModelRegistry::discover_and_load(&config.inference);
+    let registry = ModelRegistry::discover_and_load(&config.inference, &config.models);
     let mock_llm = Arc::new(MockLlm::new(config.llm.mock.clone()));
 
     let pipeline = Pipeline::build(config, &registry).expect("pipeline build succeeds");
@@ -56,7 +56,7 @@ async fn test_stub_block_triggers_block_and_short_circuits_llm() {
     config.llm.mock.latency_mean_ms = 1;
     config.llm.mock.latency_stddev_ms = 0;
 
-    let registry = ModelRegistry::discover_and_load(&config.inference);
+    let registry = ModelRegistry::discover_and_load(&config.inference, &config.models);
     let pipeline = Pipeline::build(config, &registry).expect("pipeline build succeeds");
 
     let req_ctx = RequestContext::new(None, None, RequestOptions::default());

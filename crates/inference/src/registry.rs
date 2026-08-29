@@ -39,7 +39,7 @@ pub const MODEL_REGISTRY_TABLE: &[RegisteredModel] = &[
     },
     RegisteredModel {
         model_id: "toxicity",
-        hf_repo: "martin-ha/toxic-comment-model",
+        hf_repo: "minuva/MiniLMv2-toxic-jigsaw-onnx",
         task: "text-classification",
         num_classes: 2,
     },
@@ -82,9 +82,26 @@ pub struct ModelRegistry {
 impl ModelRegistry {
     /// Discovers and initializes all registered models based on disk presence and configuration.
     #[must_use]
-    pub fn discover_and_load(config: &InferenceConfig) -> Self {
+    pub fn discover_and_load(
+        config: &InferenceConfig,
+        overrides: &std::collections::HashMap<
+            String,
+            controlplane_core::config::ModelOverrideConfig,
+        >,
+    ) -> Self {
         let mut backends: HashMap<String, Arc<dyn ModelBackend>> = HashMap::new();
         let mut infos = Vec::new();
+
+        let valid_model_ids: std::collections::HashSet<&str> =
+            MODEL_REGISTRY_TABLE.iter().map(|r| r.model_id).collect();
+        for override_id in overrides.keys() {
+            if !valid_model_ids.contains(override_id.as_str()) {
+                warn!(
+                    model = %override_id,
+                    "Model override provided in config but model ID is not registered"
+                );
+            }
+        }
 
         let base_dir = Path::new(&config.model_dir);
 
@@ -92,13 +109,30 @@ impl ModelRegistry {
             let model_id = registered.model_id;
             let model_dir = base_dir.join(model_id);
 
-            let pool_size = config.pool_size_per_model;
-            let weights_file = "model.onnx".to_string();
+            let model_override = overrides.get(model_id);
+            let pool_size = model_override
+                .and_then(|o| o.pool_size)
+                .unwrap_or(config.pool_size_per_model);
+            let weights_file = model_override
+                .and_then(|o| o.weights_file.clone())
+                .unwrap_or_else(|| "model.onnx".to_string());
 
             let model_file = model_dir.join(&weights_file);
             let tokenizer_file = model_dir.join("tokenizer.json");
+            let config_file = model_dir.join("config.json");
 
-            let has_files = model_file.exists() && tokenizer_file.exists();
+            let mut missing_files = Vec::new();
+            if !model_file.exists() {
+                missing_files.push("weights");
+            }
+            if !tokenizer_file.exists() {
+                missing_files.push("tokenizer.json");
+            }
+            if !config_file.exists() {
+                missing_files.push("config.json");
+            }
+
+            let has_files = missing_files.is_empty();
 
             let (backend, info): (Arc<dyn ModelBackend>, ModelInfo) =
                 if has_files && !config.force_stub {
@@ -148,12 +182,15 @@ impl ModelRegistry {
                         }
                     }
                 } else {
+                    let missing_str = missing_files.join(", ");
+                    let checked_path = model_file.display().to_string();
                     warn!(
                         model = %model_id,
                         backend = "stub",
                         status = "placeholder",
-                        reason = "weights_not_found",
-                        "Pipeline will run but classifications are synthetic"
+                        reason = %missing_str,
+                        path = %checked_path,
+                        "Pipeline will run but classifications are synthetic due to missing files"
                     );
                     (
                         Arc::new(StubBackend::new(model_id, registered.num_classes)),
@@ -184,5 +221,49 @@ impl ModelRegistry {
     #[must_use]
     pub fn inventory(&self) -> &[ModelInfo] {
         &self.infos
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use controlplane_core::config::{InferenceConfig, ModelOverrideConfig};
+    use std::collections::HashMap;
+    use std::fs;
+
+    #[test]
+    fn test_model_override_resolution() {
+        let temp_dir = std::env::temp_dir().join("cp_test_overrides");
+        let model_id = "toxicity";
+        let model_dir = temp_dir.join(model_id);
+        fs::create_dir_all(&model_dir).unwrap();
+
+        let custom_weights = "my_custom_weights.onnx";
+        fs::write(model_dir.join(custom_weights), b"fake_weights").unwrap();
+        fs::write(model_dir.join("tokenizer.json"), b"{}").unwrap();
+        fs::write(model_dir.join("config.json"), b"{}").unwrap();
+
+        let mut config = InferenceConfig::default();
+        config.model_dir = temp_dir.to_string_lossy().to_string();
+
+        let mut overrides = HashMap::new();
+        overrides.insert(
+            model_id.to_string(),
+            ModelOverrideConfig {
+                pool_size: Some(42),
+                weights_file: Some(custom_weights.to_string()),
+            },
+        );
+
+        let registry = ModelRegistry::discover_and_load(&config, &overrides);
+
+        let info = registry
+            .inventory()
+            .iter()
+            .find(|i| i.model_id == model_id)
+            .unwrap();
+        assert_eq!(info.backend, "stub"); // falls back to stub
+
+        fs::remove_dir_all(&temp_dir).unwrap();
     }
 }
