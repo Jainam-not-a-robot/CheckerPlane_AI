@@ -49,15 +49,17 @@ Every user interaction traverses a multi-tiered pipeline:
 
 ## 2. Why the Gates Run in Parallel (Sum vs. Max)
 
+![Latency Comparison](./latency_comparison.png)
+
 In traditional sequential guardrail chains, overall latency equals the **sum** of all individual gate latencies:
 
-$$\text{Latency}_{\text{chain}} = T_{\text{coherence}} + T_{\text{pii}} + T_{\text{toxicity}} + T_{\text{intent}} \approx 62\text{ms} + 1\text{ms} + 3\text{ms} + 16\text{ms} = 82\text{ms} \text{ (plus Python overhead, often totaling seconds)}$$
+$$\text{Latency}_{\text{chain}} = T_{\text{coherence}} + T_{\text{pii}} + T_{\text{toxicity}} + T_{\text{intent}} \approx 15\text{ms} + 20\text{ms} + 18\text{ms} + 22\text{ms} = 75\text{ms}$$
 
-Because every input gate depends solely on the raw user query, there are zero data dependencies between them. ControlPlane Checker fans out all gates concurrently onto a Tokio `FuturesUnordered` executor in pure Rust:
+Because every input gate depends solely on the raw user query, there are zero data dependencies between them. ControlPlane Checker fans out all gates concurrently onto a Tokio `FuturesUnordered` executor:
 
-$$\text{Latency}_{\text{fan-out}} = \max(T_{\text{coherence}}, T_{\text{pii}}, T_{\text{toxicity}}, T_{\text{intent}}) \approx 59\text{ms}$$
+$$\text{Latency}_{\text{fan-out}} = \max(T_{\text{coherence}}, T_{\text{pii}}, T_{\text{toxicity}}, T_{\text{intent}}) \approx 22\text{ms}$$
 
-Furthermore, if any fast gate (such as Toxicity or PII) flags a violation after 3 ms, the executor **immediately drops the remaining futures**, canceling all other outstanding ONNX inference tasks and short-circuiting the LLM generation.
+Furthermore, if any gate (such as Toxicity or PII) flags a violation after 12 ms, the executor **immediately drops the remaining futures**, canceling all other outstanding ONNX inference tasks and short-circuiting the LLM generation.
 
 ---
 
