@@ -21,6 +21,15 @@ pub trait ModelBackend: Send + Sync {
     /// Returns the class names in the order they correspond to logits.
     fn class_names(&self) -> Vec<String>;
 
+    /// True when the head is multi-label (independent sigmoid probabilities per class)
+    /// rather than single-label (softmax over mutually exclusive classes).
+    ///
+    /// Gates need this to know whether the returned probabilities sum to 1: a multi-label
+    /// head has no "the rest is the other class" complement to read a negative score from.
+    fn is_multi_label(&self) -> bool {
+        false
+    }
+
     /// Truncates a text to the last `max_tokens` tokens (sliding window).
     ///
     /// # Errors

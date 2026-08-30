@@ -70,11 +70,12 @@ impl LlmBackend for MockLlm {
         std::hash::Hash::hash(query, &mut hasher);
         let query_hash = std::hash::Hasher::finish(&hasher);
 
+        #[allow(clippy::cast_precision_loss)]
         let query_hash_prob = (query_hash % 1000) as f32 / 1000.0;
         let is_hallucination = query_hash_prob < self.config.hallucination_rate;
 
         let response_text = if is_hallucination {
-            if query_hash % 2 == 0 {
+            if query_hash.is_multiple_of(2) {
                 // Contradicting
                 format!("No, '{query}' is completely false and incorrect.")
             } else {

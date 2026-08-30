@@ -78,7 +78,6 @@ impl Gate for GroundingGate {
     async fn evaluate(&self, ctx: &GateContext) -> Result<GateOutcome, GateError> {
         let start = Instant::now();
         let response = ctx.response.unwrap_or("");
-        let query = ctx.query;
 
         // Grounding requires a history summary to ground against.
         let premise_raw = match ctx.request.history_summary.as_deref() {

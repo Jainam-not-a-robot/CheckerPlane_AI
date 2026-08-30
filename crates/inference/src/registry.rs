@@ -82,6 +82,7 @@ pub struct ModelRegistry {
 impl ModelRegistry {
     /// Discovers and initializes all registered models based on disk presence and configuration.
     #[must_use]
+    #[allow(clippy::too_many_lines)]
     pub fn discover_and_load(
         config: &InferenceConfig,
         overrides: &std::collections::HashMap<
@@ -226,6 +227,7 @@ impl ModelRegistry {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used)]
     use super::*;
     use controlplane_core::config::{InferenceConfig, ModelOverrideConfig};
     use std::collections::HashMap;
@@ -243,8 +245,10 @@ mod tests {
         fs::write(model_dir.join("tokenizer.json"), b"{}").unwrap();
         fs::write(model_dir.join("config.json"), b"{}").unwrap();
 
-        let mut config = InferenceConfig::default();
-        config.model_dir = temp_dir.to_string_lossy().to_string();
+        let config = InferenceConfig {
+            model_dir: temp_dir.to_string_lossy().to_string(),
+            ..Default::default()
+        };
 
         let mut overrides = HashMap::new();
         overrides.insert(

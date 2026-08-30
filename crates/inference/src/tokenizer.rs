@@ -9,7 +9,7 @@
 use controlplane_core::error::InferenceError;
 use std::path::Path;
 use std::sync::Arc;
-use tokenizers::Tokenizer;
+use tokenizers::{Tokenizer, TruncationDirection, TruncationParams, TruncationStrategy};
 
 /// Container for Transformer model input tensors.
 #[derive(Debug, Clone)]
@@ -29,6 +29,12 @@ pub struct EncodedInput {
 pub struct SharedTokenizer {
     model_id: String,
     tokenizer: Arc<Tokenizer>,
+    /// Same vocabulary, truncation disabled. Used only for *measuring* a text's true
+    /// token length in `sliding_window_truncate`; the truncating `tokenizer` would cap
+    /// the count at `max_sequence_length` and silently turn "keep the last N tokens"
+    /// into "keep tokens N..2N from the start".
+    raw_tokenizer: Arc<Tokenizer>,
+    max_sequence_length: usize,
 }
 
 impl SharedTokenizer {
@@ -39,10 +45,19 @@ impl SharedTokenizer {
     pub fn from_file(
         model_id: impl Into<String>,
         path: impl AsRef<Path>,
+        max_sequence_length: usize,
     ) -> Result<Self, InferenceError> {
         let model_id = model_id.into();
         let path_ref = path.as_ref();
-        let tokenizer =
+        let raw_tokenizer =
+            Tokenizer::from_file(path_ref).map_err(|err| InferenceError::TokenizerError {
+                model: model_id.clone(),
+                message: format!(
+                    "failed to load tokenizer from {}: {err}",
+                    path_ref.display()
+                ),
+            })?;
+        let mut tokenizer =
             Tokenizer::from_file(path_ref).map_err(|err| InferenceError::TokenizerError {
                 model: model_id.clone(),
                 message: format!(
@@ -51,10 +66,36 @@ impl SharedTokenizer {
                 ),
             })?;
 
+        // WHY: this is the hard safety net for the model's positional-embedding limit.
+        // Gates cap the premise themselves (see `sliding_window_truncate`), but nothing
+        // capped the *hypothesis*, so a long LLM response could push the encoded pair past
+        // the graph's max positions and fail the forward pass with an out-of-bounds Gather.
+        // `LongestFirst` trims whichever side is longer, so a short premise is preserved
+        // intact and only the oversized side gives up tokens.
+        tokenizer
+            .with_truncation(Some(TruncationParams {
+                max_length: max_sequence_length,
+                strategy: TruncationStrategy::LongestFirst,
+                direction: TruncationDirection::Right,
+                stride: 0,
+            }))
+            .map_err(|err| InferenceError::TokenizerError {
+                model: model_id.clone(),
+                message: format!("failed to configure truncation: {err}"),
+            })?;
+
         Ok(Self {
             model_id,
             tokenizer: Arc::new(tokenizer),
+            raw_tokenizer: Arc::new(raw_tokenizer),
+            max_sequence_length,
         })
+    }
+
+    /// Returns the maximum encoded sequence length this tokenizer will emit.
+    #[must_use]
+    pub fn max_sequence_length(&self) -> usize {
+        self.max_sequence_length
     }
 
     /// Encodes a single text sequence into model input arrays.
@@ -144,13 +185,12 @@ impl SharedTokenizer {
         text: &str,
         max_tokens: usize,
     ) -> Result<String, InferenceError> {
-        let encoding =
-            self.tokenizer
-                .encode(text, false)
-                .map_err(|err| InferenceError::TokenizerError {
-                    model: self.model_id.clone(),
-                    message: format!("truncation tokenization failed: {err}"),
-                })?;
+        let encoding = self.raw_tokenizer.encode(text, false).map_err(|err| {
+            InferenceError::TokenizerError {
+                model: self.model_id.clone(),
+                message: format!("truncation tokenization failed: {err}"),
+            }
+        })?;
 
         let ids = encoding.get_ids();
         if ids.len() <= max_tokens {
@@ -158,7 +198,7 @@ impl SharedTokenizer {
         }
 
         let truncated_ids = &ids[ids.len() - max_tokens..];
-        self.tokenizer
+        self.raw_tokenizer
             .decode(truncated_ids, true)
             .map_err(|err| InferenceError::TokenizerError {
                 model: self.model_id.clone(),
