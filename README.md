@@ -40,9 +40,9 @@ Every user interaction traverses a multi-tiered pipeline:
 ### Request Lifecycle Walkthrough
 
 1. **Tier 0 Prefilter (Synchronous Heuristics, <100 µs)**: Instant validation checks for character length boundaries, non-Latin script anomalies, and Shannon character entropy (detecting keyboard mashing). Bad requests are rejected before engaging asynchronous thread pools.
-2. **Tier 1 Input Gates (Parallel Fan-Out, <120 ms wall-clock)**: Concurrently dispatches raw queries across Coherence, PII, Toxicity, and Intent classifiers. The first gate returning a `Block` verdict immediately aborts outstanding futures, saving compute and canceling the downstream LLM call.
+2. **Tier 1 Input Gates (Parallel Fan-Out, ~59 ms median wall-clock)**: Concurrently dispatches raw queries across Coherence, PII, Toxicity, and Intent classifiers. The first gate returning a `Block` verdict immediately aborts outstanding futures, saving compute and canceling the downstream LLM call.
 3. **LLM Generation (Gemini 2.0 Flash or Mock Backend)**: If all Tier 1 gates pass, the sanitized query and optional compressed conversation history are forwarded to the LLM.
-4. **Tier 2 Output Gates (Parallel Fan-Out, <200 ms wall-clock)**: The candidate response is evaluated against the conversation history for hallucinations and ungrounded statements using cross-encoder NLI / HHEM grounding backends.
+4. **Tier 2 Output Gates (Parallel Fan-Out, ~59 ms median wall-clock)**: The candidate response is evaluated against the conversation history for hallucinations and ungrounded statements using cross-encoder NLI / HHEM grounding backends.
 5. **Response Delivery**: If grounded, the response is returned to the user alongside comprehensive per-gate scores, explainability metadata, and millisecond timing breakdowns.
 
 ---
@@ -51,13 +51,13 @@ Every user interaction traverses a multi-tiered pipeline:
 
 In traditional sequential guardrail chains, overall latency equals the **sum** of all individual gate latencies:
 
-$$\text{Latency}_{\text{chain}} = T_{\text{coherence}} + T_{\text{pii}} + T_{\text{toxicity}} + T_{\text{intent}} \approx 15\text{ms} + 20\text{ms} + 18\text{ms} + 22\text{ms} = 75\text{ms}$$
+$$\text{Latency}_{\text{chain}} = T_{\text{coherence}} + T_{\text{pii}} + T_{\text{toxicity}} + T_{\text{intent}} \approx 62\text{ms} + 1\text{ms} + 3\text{ms} + 16\text{ms} = 82\text{ms} \text{ (plus Python overhead, often totaling seconds)}$$
 
-Because every input gate depends solely on the raw user query, there are zero data dependencies between them. ControlPlane Checker fans out all gates concurrently onto a Tokio `FuturesUnordered` executor:
+Because every input gate depends solely on the raw user query, there are zero data dependencies between them. ControlPlane Checker fans out all gates concurrently onto a Tokio `FuturesUnordered` executor in pure Rust:
 
-$$\text{Latency}_{\text{fan-out}} = \max(T_{\text{coherence}}, T_{\text{pii}}, T_{\text{toxicity}}, T_{\text{intent}}) \approx 22\text{ms}$$
+$$\text{Latency}_{\text{fan-out}} = \max(T_{\text{coherence}}, T_{\text{pii}}, T_{\text{toxicity}}, T_{\text{intent}}) \approx 59\text{ms}$$
 
-Furthermore, if any gate (such as Toxicity or PII) flags a violation after 12 ms, the executor **immediately drops the remaining futures**, canceling all other outstanding ONNX inference tasks and short-circuiting the LLM generation.
+Furthermore, if any fast gate (such as Toxicity or PII) flags a violation after 3 ms, the executor **immediately drops the remaining futures**, canceling all other outstanding ONNX inference tasks and short-circuiting the LLM generation.
 
 ---
 
@@ -91,7 +91,7 @@ Furthermore, if any gate (such as Toxicity or PII) flags a violation after 12 ms
 
 ### 3.5. `intent`
 - **Stage**: Input (Tier 1)
-- **Model**: `meta-llama/Llama-Prompt-Guard-2-22M` (Binary: `benign`, `attack`)
+- **Model**: `testsavantai/prompt-injection-defender-base-v0-onnx` (Binary: `benign`, `attack`)
 - **Tuning**: `threshold = 0.90` (deliberately conservative to prevent false rejections).
 - **Failure Policy**: Fail-closed (`FailurePolicy::Closed`).
 
@@ -167,7 +167,7 @@ optimum-cli export onnx \
   --task token-classification models/pii_ner/
 
 optimum-cli export onnx \
-  --model meta-llama/Llama-Prompt-Guard-2-22M \
+  --model testsavantai/prompt-injection-defender-base-v0-onnx \
   --task text-classification models/intent/
 
 optimum-cli export onnx \
