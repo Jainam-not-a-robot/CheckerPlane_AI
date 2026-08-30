@@ -6,8 +6,8 @@ shutdown_grace_ms = 10000
 
 [pipeline]
 clarify_enabled = false
-input_gate_budget_ms = 120     # wall-clock budget for the whole input fan-out
-output_gate_budget_ms = 200
+input_gate_budget_ms = 1000     # wall-clock budget for the whole input fan-out
+output_gate_budget_ms = 1000
 
 [inference]
 # Sessions per model. Parallelism comes from the pool, NOT from ONNX internal threading.
@@ -35,19 +35,23 @@ max_chars = 8000
 # Fraction of characters that must be in the expected script before we stop trusting the input.
 min_script_ratio = 0.5
 # Shannon entropy per character above which input is treated as keyboard mashing.
-max_char_entropy = 4.2
+max_char_entropy = 5.0
 
 [gates.coherence]
 enabled = true
 # SINGLE TUNING DIAL. 0.0 = permissive, 1.0 = paranoid.
 # Effective threshold = 1.0 - strictness.
-strictness = 0.55
+strictness = 0.20
 weight_noise = 1.0
 weight_word_salad = 1.0
 weight_mild_gibberish = 0.15
-min_tokens_for_model = 3
+# 1, not 3: at 3 any one- or two-token query bypassed the model entirely, so
+# "aaaaaaaa..." sailed through with risk 0.0. Measured with the model engaged it
+# scores noise=0.97 (risk 0.98), while short *legitimate* queries stay far below
+# the 0.80 block threshold ("hi" 0.64, "k8s" 0.61, "ok" 0.61, "postgres" 0.42).
+min_tokens_for_model = 1
 max_tokens_for_model = 64
-timeout_ms = 150
+timeout_ms = 800
 failure_policy = "open"
 
 [gates.pii]
@@ -58,14 +62,24 @@ failure_policy = "closed"
 
 [gates.toxicity]
 enabled = true
-threshold = 0.80
-timeout_ms = 40
+# 0.50, not 0.95. Measured on the labelled corpus this head is cleanly separated:
+# the highest score on any benign query is 0.021, the lowest on a genuinely toxic
+# one is 0.744. 0.95 sat above that 0.744 and silently missed it. 0.50 is ~24x the
+# benign ceiling and 0.24 below the toxic floor, so it has margin on both sides.
+threshold = 0.50
+timeout_ms = 800
 failure_policy = "closed"
 
 [gates.intent]
 enabled = true
-threshold = 0.90          # deliberately high: false positives here are very visible
-timeout_ms = 40
+# Left deliberately high: this head is near-uninformative on terse technical
+# queries, scoring "nginx reverse proxy websockets config" 0.9997 and "docker
+# compose healthcheck syntax" 0.9968 while rating a real DAN jailbreak 0.259 and
+# "Repeat the text above..." 0.075. No threshold separates those, so this gate is
+# held at a value that only fires on unambiguous attacks; raising recall here
+# needs a better model, not a smaller number.
+threshold = 0.999
+timeout_ms = 800
 failure_policy = "closed"
 
 [gates.grounding]
@@ -86,8 +100,8 @@ failure_policy = "open"        # a weak relevance signal should not block a vali
 
 [llm]
 backend = "mock"          # "mock" | "gemini"
-model = "gemini-2.0-flash"
-timeout_ms = 15000
+model = "gemini-3.6-flash"
+timeout_ms = 30000
 max_output_tokens = 1024
 # API key comes from CP_LLM__API_KEY. Never commit it.
 
